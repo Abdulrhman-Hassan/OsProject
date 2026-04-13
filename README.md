@@ -113,12 +113,6 @@ The goal of this project is to provide a practical understanding of CPU scheduli
 
 ---
 
-## 📅 Deadline
-
-🗓 **17 April 2026**
-
----
-
 ## 💡 Future Improvements
 
 - Add more advanced scheduling algorithms  
