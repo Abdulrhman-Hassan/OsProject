@@ -20,7 +20,7 @@ namespace OsClasses
                 if(currentProcess != null)
                     currentProcess.BurstTime--;
                 if(isLiveMode)
-                    await Task.Delay(1000);
+                    await Task.Delay(1000); 
                 _count++;
                 if (currentProcess != null && currentProcess.BurstTime == 0)
                 {
