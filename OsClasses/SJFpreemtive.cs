@@ -1,4 +1,5 @@
-﻿using System;
+using OsClasses.Models;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Text;
@@ -47,8 +48,8 @@ namespace OsClasses
                 if (isLiveMode)
                 {
                     await Task.Delay(1000);
-                    while (SchedulerGUI.MainWindow.IsPaused && !SchedulerGUI.MainWindow.IsCancelled) await Task.Delay(100);
-                    if (SchedulerGUI.MainWindow.IsCancelled) return;
+                    while (SchedulerState.IsPaused && !SchedulerState.IsCancelled) await Task.Delay(100);
+                    if (SchedulerState.IsCancelled) return;
                 }
                 _count++;
                 if (currentProcess != null && currentProcess.BurstTime == 0)
