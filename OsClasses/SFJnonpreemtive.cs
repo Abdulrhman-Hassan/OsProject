@@ -19,7 +19,7 @@ namespace OsClasses
             originalBurstTimes.Clear();
             Time = 0;
         }
-        public static async Task Run(PriorityQueue<Process, int> processes, int quantum = 0, bool isLiveMode = true)
+        public static async Task Run(PriorityQueue<Process, int> processes, bool isLiveMode = true)
         {
             Time = 0;
             allProcesses.Clear();
@@ -50,9 +50,6 @@ namespace OsClasses
                     allProcesses.Add(currentProcess);
                     readyQueue.Remove(currentProcess);
                 }
-                if (isLiveMode)
-                    await Task.Delay(1000);
-
                 if (currentProcess != null)
                 {
                     if (Gantt.Count == 0 || Gantt[Gantt.Count - 1].Pid != currentProcess.Id)
@@ -79,6 +76,13 @@ namespace OsClasses
                         Gantt[Gantt.Count - 1].EndTime = Time + 1;
                 }
                 Time++;
+
+                if (isLiveMode)
+                {
+                    await Task.Delay(1000);
+                    while (SchedulerGUI.MainWindow.IsPaused && !SchedulerGUI.MainWindow.IsCancelled) await Task.Delay(100);
+                    if (SchedulerGUI.MainWindow.IsCancelled) return;
+                }
             }
 
         }
