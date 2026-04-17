@@ -97,7 +97,7 @@ The simulator accepts:
 | Saeed Bayoumy       | 2200950  | FCFS Algorithm               |
 | Zeyad Abdallah      | 2200932  | Round Robin Algorithm        |
 | Marcelino Maged     | 2200909  | Priority Preemptive          |
-| Mohamed Ali         |          | SJF Non-Preemptive           |
+| Mohamed Ali         | 2200942  | SJF Non-Preemptive           |
 | Abdelrahman Hassan  |          | SJF Preemptive               |
 | Omar Mohsen         |          | Priority Non-Preemptive      |
 
