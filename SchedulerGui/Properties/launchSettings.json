@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "SchedulerGui (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "SchedulerGui (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
