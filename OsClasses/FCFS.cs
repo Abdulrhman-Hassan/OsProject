@@ -40,10 +40,17 @@ namespace OsClasses
 
             while (processes.Count > 0 || readyQueue.Count > 0 || currentProcess != null)
             {
-                while (processes.Count > 0 && processes.Peek().ArrivalTime <= _time)
-                {
-                    readyQueue.Enqueue(processes.Dequeue());
-                }
+                int count = processes.Count;
+
+				for (int i = 0; i < count; i++)
+				{
+					var p = processes.Dequeue();
+
+					if (p.ArrivalTime <= _time)
+						readyQueue.Enqueue(p);
+					else
+						processes.Enqueue(p);
+				}
 
                 if (currentProcess == null && readyQueue.Count > 0)
                 {
