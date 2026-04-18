@@ -46,7 +46,7 @@ public sealed partial class MainWindow : Window
     // concurrently.
     private PriorityQueue<Process, int> _runningPQ;
     private Queue<Process> _runningFcfsQueue;  // FCFS uses Queue<Process>, not the PQ
-    private PriorityQueue<Process, (int, int)> _runningTuplePQ; // For algorithms with secondary tiebreakers
+    private PriorityQueue<Process, (int, int, int)> _runningTuplePQ; // For algorithms with secondary tiebreakers
     private bool _isRunning;
     private bool _liveMode;
     private int _enqueueCounter; // stable tiebreaker for live-injected processes
@@ -278,7 +278,7 @@ public sealed partial class MainWindow : Window
             if (_runningFcfsQueue != null)
                 _runningFcfsQueue.Enqueue(p);          // FCFS path: inject into Queue
             else if (_runningTuplePQ != null)
-                _runningTuplePQ.Enqueue(p, (p.ArrivalTime, p.BurstTime));
+                _runningTuplePQ.Enqueue(p, (p.ArrivalTime, p.BurstTime, p.Id));
             else if (_runningPQ != null)
                 _runningPQ.Enqueue(p, (p.ArrivalTime * 10000) + _enqueueCounter++);
         }
@@ -397,11 +397,11 @@ public sealed partial class MainWindow : Window
         }
         else if (_active.DisplayName == "SJF Preemptive (SRTF)")
         {
-            var tuplePq = new PriorityQueue<Process, (int, int)>();
+            var tuplePq = new PriorityQueue<Process, (int, int, int)>();
             while (pq.Count > 0)
             {
                 pq.TryDequeue(out var p, out _);
-                tuplePq.Enqueue(p, (p.ArrivalTime, p.BurstTime));
+                tuplePq.Enqueue(p, (p.ArrivalTime, p.BurstTime, p.Id));
             }
             _runningTuplePQ = tuplePq;
             await SjfPreemptive.Run(tuplePq, quantum, _liveMode);

@@ -10,7 +10,7 @@ namespace OsClasses
     public static class SjfPreemptive
     {
         public static ObservableCollection<GanttBlock> Gantt = new ObservableCollection<GanttBlock>(); // For Gantt chart visualization
-        private static readonly PriorityQueue<Process, (int primary, int secondary)> _processes = new PriorityQueue<Process, (int primary, int secondary)>();
+        private static readonly PriorityQueue<Process, (int primary, int secondary, int tertiary)> _processes = new PriorityQueue<Process, (int primary, int secondary, int tertiary)>();
         private static int _pid;
         private static int _count;
 
@@ -21,7 +21,7 @@ namespace OsClasses
             _pid = 0;
             _count = 0;
         }
-        public static async Task Run(PriorityQueue<Process, (int primary,int secondary)> processes, int quantum = 0, bool isLiveMode = true)
+        public static async Task Run(PriorityQueue<Process, (int primary, int secondary, int tertiary)> processes, int quantum = 0, bool isLiveMode = true)
         {
             _pid = 0;
             _count = 0;
@@ -88,26 +88,26 @@ namespace OsClasses
                     else if ((processes.Peek().BurstTime < currentProcess.BurstTime) && _processes.Count == 0)
                     {
                         currentProcess.IsExecuting = false;
-                        _processes.Enqueue(currentProcess, (currentProcess.BurstTime, _pid++));
+                        _processes.Enqueue(currentProcess, (currentProcess.BurstTime, currentProcess.ArrivalTime, currentProcess.Id));
                         currentProcess = processes.Dequeue();
                     }
                     else if (_processes.Count > 0 && processes.Peek().BurstTime < currentProcess.BurstTime && processes.Peek().BurstTime < _processes.Peek().BurstTime)
                     {
                         currentProcess.IsExecuting = false;
-                        _processes.Enqueue(currentProcess, (currentProcess.BurstTime, _pid++));
+                        _processes.Enqueue(currentProcess, (currentProcess.BurstTime, currentProcess.ArrivalTime, currentProcess.Id));
                         currentProcess = processes.Dequeue();
                     }
                     else if (_processes.Count > 0 && _processes.Peek().BurstTime < currentProcess.BurstTime && _processes.Peek().BurstTime < processes.Peek().BurstTime)
                     {
                         currentProcess.IsExecuting = false;
                         currentProcess = _processes.Dequeue();
-                        _processes.Enqueue(currentProcess, (currentProcess.BurstTime, _pid++));
+                        _processes.Enqueue(currentProcess, (currentProcess.BurstTime, currentProcess.ArrivalTime, currentProcess.Id));
                     }
                     else if (processes.Count > 0)
                     {
                         currentProcess.IsExecuting = false;
-                        int burstTime = processes.Peek().BurstTime;
-                        _processes.Enqueue(processes.Dequeue(), (burstTime, _pid++));
+                        var p = processes.Dequeue();
+                        _processes.Enqueue(p, (p.BurstTime, p.ArrivalTime, p.Id));
                     }
                 }
                 if (currentProcess == null)
