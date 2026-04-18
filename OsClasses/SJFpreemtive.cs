@@ -21,7 +21,7 @@ namespace OsClasses
             _pid = 0;
             _count = 0;
         }
-        public static async Task Run(PriorityQueue<Process, int> processes, int quantum = 0, bool isLiveMode = true)
+        public static async Task Run(PriorityQueue<Process, (int primary,int secondary)> processes, int quantum = 0, bool isLiveMode = true)
         {
             _pid = 0;
             _count = 0;
@@ -60,7 +60,7 @@ namespace OsClasses
                     currentProcess.IsExecuting = false;
                     currentProcess = null;
                 }
-                while (processes.Count > 0 && processes.Peek().ArrivalTime == _count)
+                while (processes.Count > 0 && processes.Peek().ArrivalTime <= _count)
                 {
                     if (currentProcess == null)
                     {

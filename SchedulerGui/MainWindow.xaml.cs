@@ -46,6 +46,7 @@ public sealed partial class MainWindow : Window
     // concurrently.
     private PriorityQueue<Process, int> _runningPQ;
     private Queue<Process> _runningFcfsQueue;  // FCFS uses Queue<Process>, not the PQ
+    private PriorityQueue<Process, (int, int)> _runningTuplePQ; // For algorithms with secondary tiebreakers
     private bool _isRunning;
     private bool _liveMode;
     private int _enqueueCounter; // stable tiebreaker for live-injected processes
@@ -112,7 +113,7 @@ public sealed partial class MainWindow : Window
             NeedsPriority: false),
 
         new("SJF Preemptive (SRTF)",
-            SjfPreemptive.Run,
+            (pq, quantum, live) => Task.CompletedTask, // Intercepted in OnStartClick
             SjfPreemptive.Reset,
             () => SjfPreemptive.Gantt,
             NeedsQuantum: false,
@@ -276,6 +277,8 @@ public sealed partial class MainWindow : Window
         {
             if (_runningFcfsQueue != null)
                 _runningFcfsQueue.Enqueue(p);          // FCFS path: inject into Queue
+            else if (_runningTuplePQ != null)
+                _runningTuplePQ.Enqueue(p, (p.ArrivalTime, p.BurstTime));
             else if (_runningPQ != null)
                 _runningPQ.Enqueue(p, (p.ArrivalTime * 10000) + _enqueueCounter++);
         }
@@ -392,6 +395,17 @@ public sealed partial class MainWindow : Window
             _runningFcfsQueue = q; // Reusing _runningFcfsQueue since both algorithms use a dynamically injected Queue
             await RoundRobin.Run(q, _liveMode, quantum);
         }
+        else if (_active.DisplayName == "SJF Preemptive (SRTF)")
+        {
+            var tuplePq = new PriorityQueue<Process, (int, int)>();
+            while (pq.Count > 0)
+            {
+                pq.TryDequeue(out var p, out _);
+                tuplePq.Enqueue(p, (p.ArrivalTime, p.BurstTime));
+            }
+            _runningTuplePQ = tuplePq;
+            await SjfPreemptive.Run(tuplePq, quantum, _liveMode);
+        }
         else if (_active.NeedsPriority)
         {
             // Priority algorithms: pass the selected tie-breaker
@@ -409,6 +423,7 @@ public sealed partial class MainWindow : Window
         _isRunning = false;
         _runningPQ = null;
         _runningFcfsQueue = null;
+        _runningTuplePQ = null;
         IsPaused = false;
         BtnPause.Content = "Pause";
         BtnPause.IsEnabled = false;
@@ -447,6 +462,7 @@ public sealed partial class MainWindow : Window
         _isRunning = false;
         _runningPQ = null;
         _runningFcfsQueue = null;
+        _runningTuplePQ = null;
 
         // Restore all controls to their default enabled state
         BtnStart.IsEnabled = true;
